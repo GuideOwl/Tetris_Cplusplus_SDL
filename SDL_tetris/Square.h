@@ -1,8 +1,8 @@
 #include "SDL.h"
-#include <list>
+#include <string>
 
-const int SQUARE_WIDTH = 20;
-const int SQUARE_HEIGHT = 20;
+const int SQUARE_WIDTH = 30;
+const int SQUARE_HEIGHT = 30;
 
 // The Square
 class Square
@@ -11,54 +11,25 @@ private:
 	// Collision box
 	SDL_Rect box;
 
-	// Bounded game area
-	SDL_Rect bounds;
-
-	// Direction of movement
-	int xDir, yDir;
-
 	// Surface
 	SDL_Surface *surface;
-
-	// Active flag
-	bool active;
 
 public:
 	// Constructor
 	Square();
 
-	// Create an SDL_Surface for the square
-	bool create_surface();
+	// Create an SDL_Surface
+	bool create_surface( std::string filename );
 
-	// Delete the SDL_Surface for the square
+	// Delete the SDL_Surface
 	void delete_surface();
 
-	// Set bounded game area
-	void set_bounds(SDL_Rect rect);
+    // Apply the SDL_Surface
+    void show();
 
-	// Set position on the game area's grid
-	bool set_position(int gridX, int gridY);
+	// Moves the square to given coordinates
+	void set_position( int x, int y );
 
-	// Gets collision box
-	SDL_Rect get_box();
-
-	// Takes key presses and adjusts square's direction of movement
-	void handle_input(SDL_Event event);
-
-	// Sets direction indicators
-	void set_dir(int x, int y);
-
-	// Moves the square one grid space
-	bool move();
-
-	// Returns the square to it's previous position
-	void unmove();
-
-	// Shows the square
-	void show();
-
-	bool get_active();
-	void set_active(bool active);
-
-	bool move_valid( std::list<Square> myList );
+	// Returns the square's coordinates
+	SDL_Rect get_position();
 };
