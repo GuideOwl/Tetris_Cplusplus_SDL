@@ -1,6 +1,14 @@
 #include "SDL.h"
 #include "Shape.h"
 
+SDL_Rect rect( int x, int y )
+{
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	return rect;
+}
+
 // Constructor
 Shape::Shape()
 {
@@ -14,6 +22,219 @@ Shape::Shape()
 
 	// Default orientation
 	this->orientation = 0;
+
+	// Define rotations for each piece
+	switch ( this->type )
+	{
+	case I:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(-1,0);
+		this->rotations[0][2] = rect(1,0);
+		this->rotations[0][3] = rect(2,0);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,-1);
+		this->rotations[1][2] = rect(0,1);
+		this->rotations[1][3] = rect(0,2);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(1,0);
+		this->rotations[2][2] = rect(-1,0);
+		this->rotations[2][3] = rect(-2,0);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,1);
+		this->rotations[3][2] = rect(0,-1);
+		this->rotations[3][3] = rect(0,-2);
+		
+		break;
+	case J:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(-1,0);
+		this->rotations[0][2] = rect(1,0);
+		this->rotations[0][3] = rect(1,1);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,-1);
+		this->rotations[1][2] = rect(0,1);
+		this->rotations[1][3] = rect(-1,1);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(1,0);
+		this->rotations[2][2] = rect(-1,0);
+		this->rotations[2][3] = rect(-1,-1);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,1);
+		this->rotations[3][2] = rect(0,-1);
+		this->rotations[3][3] = rect(1,-1);
+		
+		break;
+	case L:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(-1,0);
+		this->rotations[0][2] = rect(1,0);
+		this->rotations[0][3] = rect(-1,1);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,-1);
+		this->rotations[1][2] = rect(0,1);
+		this->rotations[1][3] = rect(-1,-1);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(1,0);
+		this->rotations[2][2] = rect(-1,0);
+		this->rotations[2][3] = rect(1,-1);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,1);
+		this->rotations[3][2] = rect(0,-1);
+		this->rotations[3][3] = rect(1,1);
+		
+		break;
+	case O:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(1,0);
+		this->rotations[0][2] = rect(0,1);
+		this->rotations[0][3] = rect(1,1);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(1,0);
+		this->rotations[1][2] = rect(0,1);
+		this->rotations[1][3] = rect(1,1);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(1,0);
+		this->rotations[2][2] = rect(0,1);
+		this->rotations[2][3] = rect(1,1);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(1,0);
+		this->rotations[3][2] = rect(0,1);
+		this->rotations[3][3] = rect(1,1);
+		
+		break;
+	case S:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(1,0);
+		this->rotations[0][2] = rect(-1,1);
+		this->rotations[0][3] = rect(0,1);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,1);
+		this->rotations[1][2] = rect(-1,-1);
+		this->rotations[1][3] = rect(-1,0);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(1,0);
+		this->rotations[2][2] = rect(-1,1);
+		this->rotations[2][3] = rect(0,1);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,1);
+		this->rotations[3][2] = rect(-1,-1);
+		this->rotations[3][3] = rect(-1,0);
+		
+		break;
+	case T:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(-1,0);
+		this->rotations[0][2] = rect(1,0);
+		this->rotations[0][3] = rect(0,1);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,-1);
+		this->rotations[1][2] = rect(0,1);
+		this->rotations[1][3] = rect(-1,0);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(1,0);
+		this->rotations[2][2] = rect(-1,0);
+		this->rotations[2][3] = rect(0,-1);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,1);
+		this->rotations[3][2] = rect(0,-1);
+		this->rotations[3][3] = rect(1,0);
+		
+		break;
+	case Z:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(-1,0);
+		this->rotations[0][2] = rect(0,1);
+		this->rotations[0][3] = rect(1,1);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,-1);
+		this->rotations[1][2] = rect(-1,0);
+		this->rotations[1][3] = rect(-1,1);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(-1,0);
+		this->rotations[2][2] = rect(0,1);
+		this->rotations[2][3] = rect(1,1);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,-1);
+		this->rotations[3][2] = rect(-1,0);
+		this->rotations[3][3] = rect(-1,1);
+		break;
+	default:
+		// rotation 0
+		this->rotations[0][0] = rect(0,0);
+		this->rotations[0][1] = rect(0,2);
+		this->rotations[0][2] = rect(0,4);
+		this->rotations[0][3] = rect(0,6);
+		
+		// rotation 1
+		this->rotations[1][0] = rect(0,0);
+		this->rotations[1][1] = rect(0,2);
+		this->rotations[1][2] = rect(0,4);
+		this->rotations[1][3] = rect(0,6);
+		
+		// rotation 2
+		this->rotations[2][0] = rect(0,0);
+		this->rotations[2][1] = rect(0,2);
+		this->rotations[2][2] = rect(0,4);
+		this->rotations[2][3] = rect(0,6);
+		
+		// rotation 3
+		this->rotations[3][0] = rect(0,0);
+		this->rotations[3][1] = rect(0,2);
+		this->rotations[3][2] = rect(0,4);
+		this->rotations[3][3] = rect(0,6);
+		
+		break;
+	}
+
 
 	// Organize 4 squares into correct shape
 	switch ( this->type )
@@ -96,4 +317,44 @@ void Shape::set_position( SDL_Rect coords )
 			this->squares[i].get_position().x + xOffset, 
 			this->squares[i].get_position().y + yOffset);
 	}
+}
+
+// Moves shape in increments of cells
+void Shape::move_cell( int x, int y )
+{
+	// Destination coordinates
+	SDL_Rect dest;
+
+	dest.x = this->squares[0].get_position().x + x * SQUARE_WIDTH;
+	dest.y = this->squares[0].get_position().y + y * SQUARE_HEIGHT;
+
+	this->set_position( dest );
+}
+
+// Rotates shape clockwise or counterclockwise
+void Shape::rotate( int direc )
+{
+	SDL_Rect newOffset, oldOffset, newCoords, oldCoords;
+	int newOrientation, oldOrientation;
+
+	for ( int i = 0; i < 4; i++ )
+	{
+		// Piece's current orientation and it's orientation after a CW or CCW rotation
+		oldOrientation = this->orientation;
+		newOrientation = ( oldOrientation + direc ) % 4;
+
+		// Offset from origin square of the piece
+		oldOffset = this->rotations[oldOrientation][i];
+		newOffset = this->rotations[newOrientation][i];
+		
+		// Coordinates of the square
+		oldCoords = this->squares[i].get_position();
+		newCoords.x = ( newOffset.x - oldOffset.x ) * SQUARE_WIDTH + oldCoords.x;
+		newCoords.y = ( newOffset.y - oldOffset.y ) * SQUARE_HEIGHT + oldCoords.y;
+
+		// Set the new, rotated position of the square
+		this->squares[i].set_position( newCoords.x, newCoords.y );
+	}
+	// Sets the new orientation of the piece
+	this->orientation = newOrientation;
 }

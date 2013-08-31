@@ -25,10 +25,16 @@ private:
 
     // 2D array of where squares are in the grid
     Square* gridSquares[X_SQUARES][Y_SQUARES];
-    bool gridBools[X_SQUARES][Y_SQUARES];
+    
+	// 2D array of the coordinates on the screen for each cell
 	SDL_Rect gridCoords[X_SQUARES][Y_SQUARES];
 
+	// Array of boolean values for each line. 
+	// True means line is completed and should be cleared. False means not completed
+	bool lineStatus[Y_SQUARES];
+
 public:
+
 	// Constructor
 	GameGrid();
 
@@ -47,15 +53,20 @@ public:
     // Point a cell in the grid to a square and mark the cell as filled
     void set_cell( Square *square, int xCell, int yCell );
 
-    // Returns boolean value for whether a cell is occupied or not
-    bool get_bool( int xCell, int yCell );
-
     // Returns a pointer to the square that occupies the space in the grid
     Square* get_square( int xCell, int yCell);
 
 	// Returns coordinates of a cell
 	SDL_Rect get_coords( int xCell, int yCell );
 
-	// Adds a shape to the grid
-	void add_block( Shape * shape );
+	// Updates the grid's information on the shape
+	void update_piece( Shape * shape );
+
+	// Check if given block collides with the gameGrid boundaries or with another block
+	bool check_collision( Shape* shape );
+
+	// Updates lineStatus array with completed lines, returns true if any lines are complete
+	bool check_lines();
+
+	// 
 };

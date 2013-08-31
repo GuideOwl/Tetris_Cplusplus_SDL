@@ -14,6 +14,9 @@ private:
 	// Surface
 	SDL_Surface *surface;
 
+	// Black surface
+	SDL_Surface *whiteSurface;
+
 public:
 	// Constructor
 	Square();
@@ -32,4 +35,7 @@ public:
 
 	// Returns the square's coordinates
 	SDL_Rect get_position();
+
+	// Toggles the surface between regular and white
+	void toggle_surface();
 };

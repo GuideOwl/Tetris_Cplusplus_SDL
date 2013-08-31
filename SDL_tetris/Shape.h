@@ -24,6 +24,10 @@ private:
 	// If shape is the active shape
     bool active;
 
+	// Array holding positions of each square for each rotation of the piece
+	// rotations[rotation #][square ID]
+	SDL_Rect rotations[4][4];
+
 public:
     // Array of four squares composing the shape
     Square squares[4];
@@ -45,4 +49,10 @@ public:
 
 	// Apply the SDL_Surface
     void show();
+
+	// Moves shape in increments of cells
+	void move_cell( int x, int y );
+
+	// Rotates shape clockwise or counterclockwise
+	void rotate( int direc );
 };
