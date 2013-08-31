@@ -29,8 +29,8 @@ private:
 	SDL_Rect rotations[4][4];
 
 public:
-    // Array of four squares composing the shape
-    Square squares[4];
+    // Array of pointers to four squares composing the shape
+    Square* squares[4];
 
     // Constructor
     Shape();
@@ -55,4 +55,7 @@ public:
 
 	// Rotates shape clockwise or counterclockwise
 	void rotate( int direc );
+
+	// Free surface and delete squares
+	void clean_up();
 };

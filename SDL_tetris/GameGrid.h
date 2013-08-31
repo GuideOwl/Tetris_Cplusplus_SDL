@@ -65,8 +65,15 @@ public:
 	// Check if given block collides with the gameGrid boundaries or with another block
 	bool check_collision( Shape* shape );
 
-	// Updates lineStatus array with completed lines, returns true if any lines are complete
-	bool check_lines();
+	// Updates lineStatus array with completed lines, returns number of lines completed
+	int check_lines();
 
-	// 
+	// Deletes all the squares in every completed line
+	void clear_lines();
+
+	// Move down the lines above each deleted line
+	void drop_lines();
+
+	// Free surface and delete squares
+	void clean_up();
 };

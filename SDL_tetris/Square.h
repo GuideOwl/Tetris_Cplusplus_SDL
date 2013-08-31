@@ -21,6 +21,9 @@ public:
 	// Constructor
 	Square();
 
+	// Destructor
+	~Square();
+
 	// Create an SDL_Surface
 	bool create_surface( std::string filename );
 

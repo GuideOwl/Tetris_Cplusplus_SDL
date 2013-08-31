@@ -17,7 +17,6 @@ GameGrid::GameGrid()
         for ( int j = 0; j < Y_SQUARES; j++ )
         {
             this->gridSquares[i][j] = NULL;
-            //this->gridBools[i][j] = false;
 			this->gridCoords[i][j].x = this->bounds.x + i * SQUARE_WIDTH;
 			this->gridCoords[i][j].y = this->bounds.y + j * SQUARE_HEIGHT;
 			this->gridCoords[i][j].w = SQUARE_WIDTH;
@@ -28,7 +27,7 @@ GameGrid::GameGrid()
 	// Initialize lineWaiting array to all false
 	for ( int i = 0; i < Y_SQUARES; i++ )
 	{
-		this->lineWaiting[i] = false;
+		this->lineStatus[i] = false;
 	}
 }
 
@@ -81,7 +80,7 @@ void GameGrid::update_piece( Shape * shape )
 		{
 			for ( int k = 0; k < 4; k++ )
 			{
-				if ( this->gridSquares[i][j] == &(shape->squares[k]) )
+				if ( this->gridSquares[i][j] == shape->squares[k] )
 				{
 					this->gridSquares[i][j] = NULL;
 				}
@@ -92,9 +91,9 @@ void GameGrid::update_piece( Shape * shape )
 	// Add piece to the grid
 	for ( int i = 0; i < 4; i++ )
 	{
-		xCell = ( shape->squares[i].get_position().x - this->bounds.x ) / SQUARE_WIDTH;
-		yCell = ( shape->squares[i].get_position().y - this->bounds.y ) / SQUARE_HEIGHT;
-		this->gridSquares[xCell][yCell] = &(shape->squares[i]);
+		xCell = ( shape->squares[i]->get_position().x - this->bounds.x ) / SQUARE_WIDTH;
+		yCell = ( shape->squares[i]->get_position().y - this->bounds.y ) / SQUARE_HEIGHT;
+		this->gridSquares[xCell][yCell] = shape->squares[i];
 		//this->gridBools[xCell][yCell] = true;
 	}
 }
@@ -113,9 +112,9 @@ bool GameGrid::check_collision( Shape* shape )
 	for ( int i = 0; i < 4; i++ )
 	{
 		// Calculate the sides of the square
-		topA = shape->squares[i].get_position().y;
+		topA = shape->squares[i]->get_position().y;
 		bottomA = topA + SQUARE_HEIGHT;
-		leftA = shape->squares[i].get_position().x;
+		leftA = shape->squares[i]->get_position().x;
 		rightA = leftA + SQUARE_WIDTH;
 
 		// Check for collision with boundaries
@@ -143,10 +142,10 @@ bool GameGrid::check_collision( Shape* shape )
 				if ( this->gridSquares[m][n] != NULL )
 				{
 					// If the square in the grid is not one of the active squares
-					if (	( this->gridSquares[m][n] != &(shape->squares[0]) ) &&
-							( this->gridSquares[m][n] != &(shape->squares[1]) ) &&
-							( this->gridSquares[m][n] != &(shape->squares[2]) ) &&
-							( this->gridSquares[m][n] != &(shape->squares[3]) ) )
+					if (	( this->gridSquares[m][n] != shape->squares[0] ) &&
+							( this->gridSquares[m][n] != shape->squares[1] ) &&
+							( this->gridSquares[m][n] != shape->squares[2] ) &&
+							( this->gridSquares[m][n] != shape->squares[3] ) )
 					{
 						// Calculate the sides of the square
 						topB = this->gridSquares[m][n]->get_position().y;
@@ -184,17 +183,30 @@ bool GameGrid::check_collision( Shape* shape )
 	return false;	
 }
 
-// Returns number of lines cleared
-int GameGrid::clear_lines()
+// Deletes all the squares in every completed line
+void GameGrid::clear_lines()
 {
-
+	// For each line
+	for ( int y = 0; y < Y_SQUARES; y++ )
+	{
+		// If the line is complete
+		if ( this->lineStatus[y] == true )
+		{
+			// Delete all the squares in the line
+			for ( int x = 0; x < X_SQUARES; x++ )
+			{
+				delete this->gridSquares[x][y];
+				this->gridSquares[x][y] = NULL;
+			}
+		}
+	}
 }
 
 // Updates lineStatus array with completed lines, returns true if any lines are complete
-bool GameGrid::check_lines()
+int GameGrid::check_lines()
 {
 	int lineOccupants;
-	bool lineDone = false;
+	int numLinesDone = 0;
 
 	// At each row
 	for ( int y = 0; y < Y_SQUARES; y++ )
@@ -215,10 +227,72 @@ bool GameGrid::check_lines()
 		{
 			// Update lineStatus array
 			this->lineStatus[y] = true;
-			lineDone = true;
+			numLinesDone += 1;
 		}
 	}
 
 	// Return whether or not any lines are completed
-	return lineDone;
+	return numLinesDone;
+}
+
+// Move down the lines above each deleted line
+void GameGrid::drop_lines()
+{
+	SDL_Rect oldCoords;
+	Square* square;
+
+	// At each row
+	for ( int y = 0; y < Y_SQUARES; y++ )
+	{
+		// If line is completed
+		if ( this->lineStatus[y] == true )
+		{
+			// For each line above the completed line
+			for ( int i = (y - 1); i >= 0; i-- )
+			{
+				// Move all the squares in the line down by 1
+				for ( int x = 0; x < X_SQUARES; x++ )
+				{
+					// If the cell has a square in it
+					if ( this->gridSquares[x][i] != NULL )
+					{
+						// Point to square and get its old info
+						square = this->gridSquares[x][i];
+						oldCoords = square->get_position();
+					
+						// Move square
+						square->set_position( oldCoords.x, oldCoords.y + SQUARE_HEIGHT );
+
+						// Update grid's information on the square
+						this->gridSquares[x][i] = NULL;
+						this->gridSquares[x][i+1] = square;
+
+						// Uncheck the line in lineStatus
+						lineStatus[y] = false;
+					}
+				}
+			}
+		}
+	}
+}
+
+// Free surface and delete squares
+void GameGrid::clean_up()
+{
+	// For each cell
+	for ( int y = 0; y < Y_SQUARES; y++ )
+	{
+		for ( int x = 0; x < X_SQUARES; x++)
+		{
+			// If there is a square
+			if ( this->gridSquares[x][y] != NULL )
+			{
+				// Delete the square
+				delete this->gridSquares[x][y];
+			}
+		}
+	}
+
+	// Free the GameGrid surface
+	this->delete_surface();
 }

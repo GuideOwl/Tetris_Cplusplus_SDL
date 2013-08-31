@@ -23,6 +23,7 @@ enum input_commands { LEFT, RIGHT, SOFT_DROP, HARD_DROP, ROT_CW, ROT_CCW, PAUSE,
 // Surfaces
 SDL_Surface *screenSurface = NULL;
 SDL_Surface *backgroundSurface = NULL;
+SDL_Surface *scoreSurface = NULL;
 
 /// Loads an image and returns an optimized surface
 SDL_Surface *load_image( std::string filename );
@@ -44,9 +45,6 @@ bool init();
 
 // Check for collision between two SDL_Rect objects
 bool check_collision( SDL_Rect A, SDL_Rect B );
-
-// Clean up
-void clean_up( );
 
 // Event handler
 void handle_input();

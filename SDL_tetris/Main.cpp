@@ -1,5 +1,6 @@
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_ttf.h"
 
 #include "GameGrid.h"
 #include "Timer.h"
@@ -33,8 +34,8 @@ int main( int argc, char* args[] )
 	// Flag for waiting until lines are cleared
 	bool waitClear = false;
 
-	// Flag for whether any lines are completed
-	bool lineDone = false;
+	// Number of lines completed that are ready to be cleared
+	int numLinesDone = 0;
 
 	// Create the game area
 	GameGrid gameGrid;
@@ -42,6 +43,17 @@ int main( int argc, char* args[] )
     // Shapes: current active shape and next shape in queue
     Shape *activeShape = NULL;
     Shape *queuedShape = NULL;
+
+	// Font
+	TTF_Font *font = NULL;
+
+	// Color of the font
+	SDL_Color textColor = { 0, 0, 0 };
+
+	// Score text
+	char scoreText[30];
+	int scoreTextLength;
+
 
 	// Positions: starting, queued
 	SDL_Rect startingPosition, queuedPosition;
@@ -69,9 +81,15 @@ int main( int argc, char* args[] )
 	// Create gameGrid surface
 	if ( gameGrid.create_surface() != true ) { return 1; }
 
+	// Load font file
+	font = TTF_OpenFont( "lazy.ttf", 28 );
+
     // Start the timers
     gravity.start();
     fps.start();
+
+	// Score starts at 0
+	score = 0;
 
     // Seed rand
     srand(time(NULL));
@@ -113,7 +131,7 @@ int main( int argc, char* args[] )
 		}
 
 		// If there is no active shape: 
-		if ( ( activeShape == NULL ) && ( delay == false ) )
+		if ( ( activeShape == NULL ) && ( waitClear == false ) )
 		{
 			// If there is no queued shape:
 			if ( queuedShape == NULL )
@@ -249,6 +267,16 @@ int main( int argc, char* args[] )
 					// Do nothing if there is no active shape
 					if ( activeShape == NULL ) { break; }
 
+					activeShape->rotate(CCW);
+					if ( gameGrid.check_collision( activeShape ) == true )
+					{
+						activeShape->rotate(CW);
+					}
+					else
+					{
+						// Update grid with new activeShape position
+						gameGrid.update_piece( activeShape );
+					}
 					break;
 				// Pause game
 				case PAUSE:
@@ -269,9 +297,9 @@ int main( int argc, char* args[] )
 				// Restart gravity timer
 				gravity.start();
 				// Mark any completed lines for clearing
-				lineDone = gameGrid.check_lines();
+				numLinesDone = gameGrid.check_lines();
 				// Deactive all movement if any lines are checked
-				if ( lineDone == true )
+				if ( numLinesDone > 0 )
 				{
 					waitClear = true;
 				}
@@ -279,7 +307,7 @@ int main( int argc, char* args[] )
 		}
 
 		// Handle line clearing
-		if ( lineDone = true )
+		if ( numLinesDone > 0 )
 		{
 			// Start clearLine timer
 			clearLine.start();
@@ -288,24 +316,34 @@ int main( int argc, char* args[] )
 			if ( blinkCount < 6 )
 			{
 				// Blink lines
+				blinkCount += 1;
+				if ( blinkCount == 6 )
+				{
+					// Restart gravity timer to wait for dropdown
+					gravity.start();
+				}
 			}
 			else
 			{
 				// Clear lines
 				gameGrid.clear_lines();
-				// Restart gravity timer
-				gravity.start();
 				// Wait for gravity timer
 				if ( gravity.get_ticks() >= GRAVITY_PERIOD )
 				{
 					// Move lines down
 					gameGrid.drop_lines();
 					// Add score
-					add_score( gameGrid.
+					add_score( numLinesDone );
 					// Unmark lines
+					//gameGrid.uncheck_lines();
 					// Clear blink counter
+					blinkCount = 0;
 					// Restart gravity timer
-					// Clear linkDone flag
+					gravity.start();
+					// Clear numLinesDone
+					numLinesDone = 0;
+					// Activate movement again
+					waitClear = false;
 				}
 			}
 			
@@ -344,6 +382,15 @@ int main( int argc, char* args[] )
 			}
 		}
 
+		// Render the score text
+		scoreTextLength = sprintf( scoreText, "Score: %d", score );
+		scoreSurface = TTF_RenderText_Solid( font, scoreText, textColor );
+		if ( scoreSurface == NULL ) { return 1; }
+		
+		// Show the score
+		apply_surface( queuedShape->squares[0]->get_position().x, 
+					   queuedShape->squares[0]->get_position().y + 150, scoreSurface, screenSurface, NULL);
+
         // Update the screen
         if( SDL_Flip( screenSurface ) == -1 )
         {
@@ -363,7 +410,25 @@ int main( int argc, char* args[] )
         fps.start();
     }
 
-    // Clean up
+    // --------------------------------------------------------------------
+    // CLEAN UP
+    // --------------------------------------------------------------------
+
+	// Delete squares in active and queued shapes
+	if ( queuedShape != NULL )
+	{
+		queuedShape->clean_up();
+	}
+	
+	// Delete all squares in gameGrid and free the surface
+	gameGrid.clean_up();
+
+	// Free other surfaces
+	SDL_FreeSurface( screenSurface );
+	SDL_FreeSurface( backgroundSurface );
+
+    // Quit SDL
+    SDL_Quit();
 
     return 0;
 }
@@ -431,6 +496,9 @@ bool init()
     // If there was an error in setting up the screen
     if( screenSurface == NULL ){ return false; }
 
+	// Initialize SDL_ttf
+	if ( TTF_Init() == -1 ) { return false; }
+
     // Set the window caption
     SDL_WM_SetCaption( "My Little Tetris", NULL );
 
@@ -473,15 +541,6 @@ bool check_collision( SDL_Rect A, SDL_Rect B )
 
 	// if none of these are satisfied, A and B have collided
 	return true;
-}
-
-// Clean up
-void clean_up( )
-{
-	// Free all surfaces
-
-    // Quit SDL
-    SDL_Quit();
 }
 
 // ----------------------------------------------------------------------------
@@ -566,7 +625,7 @@ bool Shape::create_surfaces()
 	for ( int i = 0; i < 4; i++ )
 	{
 		// Create surface for each square in the shape with appropriate colored image
-		if ( this->squares[i].create_surface( filename ) == false ) { return false; };
+		if ( this->squares[i]->create_surface( filename ) == false ) { return false; };
 	}
 	return true;
 }
@@ -577,7 +636,7 @@ void Shape::show()
 	for ( int i = 0; i < 4; i++ )
 	{
 		// Show the square
-		this->squares[i].show();
+		this->squares[i]->show();
 	}
 }
 

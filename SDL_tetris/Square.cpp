@@ -10,6 +10,12 @@ Square::Square()
     this->box.y = 100;
 }
 
+// Destructor
+Square::~Square()
+{
+	this->delete_surface();
+}
+
 // Delete the SDL_Surface
 void Square::delete_surface()
 {
